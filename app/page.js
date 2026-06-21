@@ -1,50 +1,43 @@
-{() => {
-  const [freeUsed, setFreeUsed] = React.useState(0)
-  
-  React.useEffect(() => {
-    const used = localStorage.getItem('free_offers_used')
-    setFreeUsed(used ? parseInt(used) : 0)
-  }, [])
+'use client'
+import { useState } from 'react'
+
+export default function Home() {
+  const [clicks, setClicks] = useState(0)
 
   const handleClick = async () => {
-    if (freeUsed < 5) {
-      const newCount = freeUsed + 1
-      localStorage.setItem('free_offers_used', newCount)
-      setFreeUsed(newCount)
-      alert(`✅ Offre gratuite ${newCount}/5 - Ba9i lik ${5 - newCount} offres`)
-      // Hna ghadi n7otto code dyal prediction gratuit
-    } else {
-      // Mn b3d 5 offres, ybda paiment
-      const res = await fetch('/api/paytabs', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          amount: 199,
-          currency: 'MAD',
-          cart_id: 'footchance_' + Date.now(),
-          cart_description: 'Abonnement FootChance 1 mois'
-        })
-      })
+    const newClicks = clicks + 1
+    setClicks(newClicks)
+    
+    if (newClicks >= 6) {
+      const res = await fetch('/api/paytabs', { method: 'POST' })
       const data = await res.json()
-      window.location.href = data.redirect_url
+      window.location.href = data.url
     }
   }
 
   return (
-    <button 
-      onClick={handleClick}
-      style={{ marginTop: '20px',
-        padding: '18px 40px',
-        fontSize: '20px',
-        background: freeUsed < 5 ? '#00C851' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        border: 'none',
-        borderRadius: '15px',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
-      }}>
-      {freeUsed < 5 ? `🎁 Offre Gratuite ${freeUsed}/5` : '🔥 S\'abonner 199dh/mois'}
-    </button>
+    <div style={{textAlign: 'center', padding: '50px 20px', fontFamily: 'Arial', backgroundColor: '#f5f5f5', minHeight: '100vh'}}>
+      <h1 style={{fontSize: '36px', marginBottom: '20px', color: '#333'}}>Foot Chance ⚽</h1>
+      <p style={{fontSize: '18px', marginBottom: '30px', color: '#666'}}>
+        {clicks < 5 ? `Offre Gratuite ${clicks}/5` : 'Prêt pour 199 MAD/mois'}
+      </p>
+      <button 
+        onClick={handleClick}
+        style={{
+          padding: '20px 50px', 
+          fontSize: '20px', 
+          backgroundColor: '#00C851', 
+          color: 'white', 
+          border: 'none', 
+          borderRadius: '12px',
+          cursor: 'pointer'
+        }}
+      >
+        Get Predictions
+      </button>
+      <p style={{marginTop: '30px', fontSize: '14px', color: '#999'}}>
+        Après 5 essais gratuits
+      </p>
+    </div>
   )
-}}()
+}
